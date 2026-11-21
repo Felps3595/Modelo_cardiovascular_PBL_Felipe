@@ -25,25 +25,25 @@ function linhas_rastreabilidade(d, filtro::Int)
         (1, "PAM alvo (ATHOS-3)", f0(PAM_ALVO_ATHOS), "mmHg", "Critério clínico · Khanna et al. (2017)"),
         (1, "PAM referência (SSC)", f0(PAM_ALVO_SSC), "mmHg", "Diretriz sepse · Evans et al. (2021)"),
         (1, "Pressão venosa (Pᵥₑₙ)", f0(P_VEN), "mmHg", "Referência basal · Melo & Peters (1999)"),
-        (1, "Impedância aórtica (Z꜀)", "0,06 × Rₚ", "mmHg·s/ml", "Relação proximal · Melo & Peters (1999)"),
-        (1, "Complacência adulto (C₀)", f2(C_ADULTO), "ml/mmHg", "Planta basal · Melo & Peters (1999)"),
-        (1, "Fator Rₚ idade (70 a)", f2(PARAM.frp[]), "×", "Enrijecimento · Ferrari et al. (2003)"),
-        (1, "Fator C idade (70 a)", f2(PARAM.fcx[]), "×", "Perda elástica · Ferrari et al. (2003)"),
-        (1, "FC no choque séptico", f0(PARAM.fc[]), "bpm", "Taquicardia · Khanna et al. (2017)"),
-        (1, "DC choque idoso", f1(PARAM.dci[]), "L/min", "Calibração · ATHOS-3 / RVS 455"),
+        (1, "Impedância aórtica (Z꜀)", "0,06 × Rₚ", "mmHg·s/ml", "Razão Z꜀/Rₚ · Westerhof et al. (2009)"),
+        (1, "Complacência adulto (C₀)", f2(C_ADULTO), "ml/mmHg", "Ajuste para PA 124/74 (adulto 46 a)"),
+        (1, "Fator Rₚ idade (70 a)", f2(PARAM.frp[]), "×", "Envelhecimento · Westerhof et al. (2009)"),
+        (1, "Fator C idade (70 a)", f2(PARAM.fcx[]), "×", "Envelhecimento · Westerhof et al. (2009)"),
+        (1, "FC no choque séptico", f0(PARAM.fc[]), "bpm", "Premissa · Bone et al. (1992)"),
+        (1, "DC choque idoso", f1(PARAM.dci[]), "L/min", "Melo & Peters (1999) × 5,5/5,9"),
         (2, "Eₘₐₓ Angiotensina II", f2(PARAM.Emax[]), "adim.", "Sensibilidade · Leisman et al. (2024)"),
         (2, "EC₅₀ Angiotensina II", f1(d.EC50), "ng/kg/min", "Calibrado p/ Eₘₐₓ · Leisman et al. (2024)"),
         (2, "Fator r do BRA (AT₁)", f1(d.rb), "× EC₅₀", "Subgrupo n = 22 · Leisman et al. (2024)"),
         (2, "Fator r do IECA", "1,0", "× EC₅₀", "Subgrupo n = 29 · Leisman et al. (2024)"),
-        (2, "Meia-vida Ang II (t₁/₂)", f1(T_MEIA_AII), "min", "Farmacocinética · Basso & Terragno"),
+        (2, "Meia-vida Ang II (t₁/₂)", f1(T_MEIA_AII), "min", "Limite superior · bula GIAPREZA"),
         (2, "Dose inicial / máx Ang II", f0(DOSE_INICIAL) * " / " * f0(DOSE_MAX), "ng/kg/min", "Protocolo ATHOS-3 · Khanna et al. (2017)"),
         (2, "Cortes prognósticos F₁₅", f2(F15_CORTES[1]) * " – " * f2(F15_CORTES[2]), "adim.", "Déficit em 15 min · Leisman et al. (2024)"),
-        (3, "Ganho de titulação", f1(PARAM.ganho[]), "ng/kg/min/mmHg", "Passo proporcional · Protocolo grupo"),
+        (3, "Ganho de titulação", f1(PARAM.ganho[]), "ng/kg/min/mmHg", "Premissa do grupo (teto 15 por ajuste)"),
         (3, "Horizonte de simulação", f0(HORIZONTE), "min", "Janela clínica · 3 h (ATHOS-3)"),
         (3, "Passo Euler batimento", replace(@sprintf("%.1f", DT_EULER * 1000), "." => ","), "ms", "Integração EDO · Estabilidade numérica"),
-        (3, "Eₘₐₓ relativo NE", f2(PARAM.ne_frac[]), "× Eₘₐₓ,AII", "Premissa do grupo (não calibrada)"),
+        (3, "Eₘₐₓ relativo NE", f2(PARAM.ne_frac[]), "× teto crit. 4", "Premissa do grupo (não calibrada)"),
         (3, "EC₅₀ Noradrenalina", f2(PARAM.ne_ec50[]), "µg/kg/min", "Premissa do grupo (dose alta NE)"),
-        (3, "Meia-vida NE (t₁/₂)", f1(PARAM.ne_t12[]), "min", "Premissa do grupo (desmame :troca)")
+        (3, "Meia-vida NE (t₁/₂)", f1(PARAM.ne_t12[]), "min", "Faixa 2–6,8 min · Beloeil et al. (2005)")
     ]
 
     filtradas = filtro == 0 ? rows : [r for r in rows if r[1] == filtro]
@@ -83,7 +83,7 @@ function aba_engenharia(corpo)
             "• Compartimento PK (1ª ordem):   dx/dt = kₑ · (u(t) − x),   com kₑ = ln(2) / t₁/₂",
             "• Ação vasoconstritora (Hill):   E_AII(x) = Eₘₐₓ · x / (r · EC₅₀ + x)   (r = 1 sem BRA; r > 1 com BRA)",
             "• Modulação da resistência periférica:   Rₚ(t) = Rₚ,₀ · (1 + E_NE(t) + E_AII(t))",
-            "• Titulação ATHOS-3: ajuste discreto a cada 5 min (0–15 min) e 15 min (15–180 min) até PAM ≥ 75 mmHg"
+            "• Titulação ATHOS-3: início em 20 ng/kg/min, ajuste a cada 5 min (passo ≤ 15, máx. 80), alvo PAM ≥ 75 mmHg"
         ],
         LARANJA, larg_txt)
 
@@ -93,7 +93,7 @@ function aba_engenharia(corpo)
         [
             "• Integração intra-ciclo: método de Euler explícito com passo fixo dt = 0,1 ms (10.000 Hz)",
             "• Horizonte de 3 horas: aproximação quase-estática PAM(t) = (Rₚ(t) + Z꜀(t))·DC + Pᵥₑₙ (passo 1 s)",
-            "• Desmame da noradrenalina (:troca): premissa exploratória do grupo (redução gradual após PAM ≥ 75)",
+            "• Desmame da noradrenalina (:troca): premissa do grupo (nora persegue PAM 65 e cai acima disso; Ang II persegue 75)",
             "• Pendência futura: controlador PI contínuo com split-range coordenado entre Ang II e Noradrenalina"
         ],
         VERDE, larg_txt)

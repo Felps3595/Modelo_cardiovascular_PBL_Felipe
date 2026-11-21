@@ -270,14 +270,14 @@ function aba_modelo3d(corpo)
     meshes_perif = [Observable(malha_tubo(r, Float32[0.10, 0.08, 0.06])) for r in rotas_perif]
     cor_perif    = Observable(VERDE)
 
-    mesh!(ax3, mesh_coracao; color = cor_coracao, shading = FastShading)
-    mesh!(ax3, mesh_aorta; color = cor_aorta, shading = FastShading)
-    mesh!(ax3, mesh_comp; color = cor_comp, shading = FastShading, transparency = true)
-    mesh!(ax3, mesh_ga1; color = RGBf(0.75, 0.35, 0.38), shading = FastShading)
-    mesh!(ax3, mesh_ga2; color = RGBf(0.75, 0.35, 0.38), shading = FastShading)
-    mesh!(ax3, mesh_ga3; color = RGBf(0.75, 0.35, 0.38), shading = FastShading)
+    mesh!(ax3, mesh_coracao; color = cor_coracao, shading = true)
+    mesh!(ax3, mesh_aorta; color = cor_aorta, shading = true)
+    mesh!(ax3, mesh_comp; color = cor_comp, shading = true, transparency = true)
+    mesh!(ax3, mesh_ga1; color = RGBf(0.75, 0.35, 0.38), shading = true)
+    mesh!(ax3, mesh_ga2; color = RGBf(0.75, 0.35, 0.38), shading = true)
+    mesh!(ax3, mesh_ga3; color = RGBf(0.75, 0.35, 0.38), shading = true)
     for mp in meshes_perif
-        mesh!(ax3, mp; color = cor_perif, shading = FastShading)
+        mesh!(ax3, mp; color = cor_perif, shading = true)
     end
 
     text!(ax3, Point3f(-2.6, 0.0, -1.15); text = "Coração (Qᵢₙ)", color = TEXTO, fontsize = 12, align = (:center, :top))
@@ -322,7 +322,7 @@ function aba_modelo3d(corpo)
     # Símbolo 1: Fonte de fluxo Q_in
     ang_c = range(0, 2pi, length = 60)
     lines!(ax_circ, 2.2 .+ 0.62 .* cos.(ang_c), 3.2 .+ 0.62 .* sin.(ang_c); color = VERMELHO, linewidth = 3)
-    arrows!(ax_circ, [Point2f(2.2, 2.8)], [Vec2f(0.0, 0.75)]; color = VERMELHO, linewidth = 2.5, arrowsize = 13)
+    arrows2d!(ax_circ, [Point2f(2.2, 2.8)], [Vec2f(0.0, 0.75)]; color = VERMELHO, shaftwidth = 2.5, tipwidth = 13, tiplength = 13)
 
     # Símbolo 2: Resistor Z_c
     zx = [3.3, 3.5, 3.75, 4.05, 4.35, 4.65, 4.9, 5.1]
@@ -512,4 +512,4 @@ function aba_modelo3d(corpo)
     atualizar_marca_3d!()
     colsize!(corpo, 1, Fixed(350))
     return
-end
+end

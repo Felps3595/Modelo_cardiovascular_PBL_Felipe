@@ -126,7 +126,7 @@ function calcular(Emax, ganho, fc, dci, frp, fcx, ne_frac, ne_ec50, ne_t12)
                       x_aii = sims[k].x, x_ne = nothing,
                       e_aii = hill.(sims[k].x, Emax, rs[k] * EC50), e_ne = nothing) for k in 1:6],
         :troca   => [(t = trocas[k].t .- FASE_NE, pam = trocas[k].pam, aii = trocas[k].aii, nora = trocas[k].nora,
-                      x_aii = trocas[k].aii, x_ne = trocas[k].nora,
+                      x_aii = trocas[k].x_aii, x_ne = trocas[k].x_nora,
                       e_aii = trocas[k].efeito_aii, e_ne = trocas[k].efeito_nora) for k in 1:6])
 
     # batimentos (Euler 0,1 ms): basal e ao fim das 3 h; IECA = sem uso (r = 1), então não repete a conta
