@@ -195,6 +195,7 @@ function troca(p::Planta, Emax, r; ganho, frac_emax_ne, ec50_ne, t_meia_ne, dt =
     najuste = round(Int, INTERVALO_AJUSTE * 60 / dt)
     t = Vector{Float64}(undef, n + 1)
     uN = similar(t); uA = similar(t); eN = similar(t); eA = similar(t); pam = similar(t)
+    xNs = similar(t); xAs = similar(t)       # doses efetivas (PK), não as doses infundidas
     dN = 0.0; xN = 0.0; dA = 0.0; xA = 0.0
     pamf(xN, xA) = basal * (1 + hill(xN, EmaxN, ec50_ne) + hill(xA, Emax, r * EC50))
     for i in 0:n
@@ -215,10 +216,10 @@ function troca(p::Planta, Emax, r; ganho, frac_emax_ne, ec50_ne, t_meia_ne, dt =
                 dA = DOSE_INICIAL                          # início da Ang II em 20 ng/kg/min
             end
         end
-        t[i+1] = tm;  uN[i+1] = dN;  uA[i+1] = dA
+        t[i+1] = tm;  uN[i+1] = dN;  uA[i+1] = dA;  xNs[i+1] = xN;  xAs[i+1] = xA
         eN[i+1] = hill(xN, EmaxN, ec50_ne);  eA[i+1] = hill(xA, Emax, r * EC50);  pam[i+1] = pamf(xN, xA)
     end
     i0 = round(Int, FASE_NE * 60 / dt) + 1
-    return (; t, nora = uN, aii = uA, efeito_nora = eN, efeito_aii = eA, pam, basal, EmaxN,
+    return (; t, nora = uN, aii = uA, x_nora = xNs, x_aii = xAs, efeito_nora = eN, efeito_aii = eA, pam, basal, EmaxN,
             pam_plato = pam[i0], nora_final = uN[end], aii_final = uA[end], pam_final = pam[end])
 end
